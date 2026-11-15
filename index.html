@@ -36,8 +36,41 @@
                 <input
                     type="text"
                     id="search"
-                    placeholder="Поиск по неисправностям..."
+                    placeholder="Поиск по справочнику..."
                 >
+            </div>
+        </section>
+
+        <section class="types-section">
+            <div class="section-heading">
+                <h2>Тип материала</h2>
+                <span>ФИЛЬТРАЦИЯ СПРАВОЧНИКА</span>
+            </div>
+
+            <div class="types-filter">
+                <button class="type-button active" data-type="all">
+                    Все
+                </button>
+
+                <button class="type-button" data-type="malfunction">
+                    Неисправности
+                </button>
+
+                <button class="type-button" data-type="emergency">
+                    Аварийные ситуации
+                </button>
+
+                <button class="type-button" data-type="procedure">
+                    Порядок действий
+                </button>
+
+                <button class="type-button" data-type="signal">
+                    Сигнализация
+                </button>
+
+                <button class="type-button" data-type="rule">
+                    Нормативные требования
+                </button>
             </div>
         </section>
 
@@ -48,6 +81,7 @@
             </div>
 
             <div class="categories">
+
                 <div class="category-card" data-category="Подвижной состав">
                     <span class="category-icon">🚆</span>
                     <h3>Подвижной состав</h3>
@@ -83,12 +117,13 @@
                     <h3>Движение поездов</h3>
                     <p>Сигнализация и движение</p>
                 </div>
+
             </div>
         </section>
 
         <section class="situations-section">
             <div class="section-heading">
-                <h2>Все ситуации</h2>
+                <h2>Все материалы</h2>
                 <span id="resultCount"></span>
             </div>
 
@@ -104,5 +139,6 @@
 
     <script src="data.js"></script>
     <script src="app.js"></script>
+
 </body>
 </html>
