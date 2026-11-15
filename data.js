@@ -1,39 +1,6 @@
 
 const situations = [
     {
-        id: 1,
-        type: "malfunction",
-        title: "Потеря управления поездом",
-        category: "Управление",
-
-        description: "Демонстрационная запись.",
-
-        signs: [
-            "Демонстрационный признак"
-        ],
-
-        actions: [
-            "Алгоритм требует заполнения и проверки."
-        ],
-
-        restrictions: "Не использовать как инструкцию.",
-
-        source: {
-            document: "Не указан",
-            section: "Не указан",
-            paragraph: "Не указан"
-        },
-
-        rollingStock: ["Не указано"],
-
-        related: [],
-
-        status: "draft",
-        lastVerified: null
-    }
-];
-const situations = [
-    {
         "id": 1794766655921,
         "title": "тестик",
         "category": "Подвижной состав",
