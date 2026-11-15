@@ -1,0 +1,33 @@
+
+const situations = [
+    {
+        id: 1,
+        title: "Потеря управления поездом",
+        category: "Управление",
+
+        description: "Демонстрационная запись.",
+
+        signs: [
+            "Демонстрационный признак"
+        ],
+
+        actions: [
+            "Алгоритм требует заполнения и проверки."
+        ],
+
+        restrictions: "Не использовать как инструкцию.",
+
+        source: {
+            document: "Не указан",
+            section: "Не указан",
+            paragraph: "Не указан"
+        },
+
+        rollingStock: ["Не указано"],
+
+        related: [],
+
+        status: "draft",
+        lastVerified: null
+    }
+];
