@@ -2,6 +2,7 @@
 const situations = [
     {
         id: 1,
+        type: "malfunction",
         title: "Потеря управления поездом",
         category: "Управление",
 
