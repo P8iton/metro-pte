@@ -1,108 +1,34 @@
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#101318">
-    <title>METRO PTE</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+const situations = [
+    {
+        id: 1,
+        type: "malfunction",
+        title: "Потеря управления поездом",
+        category: "Управление",
 
-    <header class="header">
-        <div class="brand">
-            <div class="brand-icon">🚇</div>
-            <div>
-                <h1>METRO PTE</h1>
-                <p>СПРАВОЧНАЯ СИСТЕМА МАШИНИСТА</p>
-            </div>
-        </div>
-    </header>
+        description: "Демонстрационная запись.",
 
-    <main class="container">
+        signs: [
+            "Демонстрационный признак"
+        ],
 
-        <section class="welcome">
-            <div>
-                <span class="eyebrow">БАЗА ЗНАНИЙ</span>
-                <h2>Справочник</h2>
-                <p>Неисправности, аварийные ситуации и порядок действий</p>
-            </div>
-        </section>
+        actions: [
+            "Алгоритм требует заполнения и проверки."
+        ],
 
-        <section class="search-section">
-            <div class="search-box">
-                <span>⌕</span>
-                <input
-                    type="text"
-                    id="search"
-                    placeholder="Поиск по неисправностям..."
-                >
-            </div>
-        </section>
+        restrictions: "Не использовать как инструкцию.",
 
-        <section class="categories-section">
-            <div class="section-heading">
-                <h2>Категории</h2>
-                <span>РАЗДЕЛЫ СПРАВОЧНИКА</span>
-            </div>
+        source: {
+            document: "Не указан",
+            section: "Не указан",
+            paragraph: "Не указан"
+        },
 
-            <div class="categories">
-                <div class="category-card" data-category="Подвижной состав">
-                    <span class="category-icon">🚆</span>
-                    <h3>Подвижной состав</h3>
-                    <p>Неисправности оборудования</p>
-                </div>
+        rollingStock: ["Не указано"],
 
-                <div class="category-card" data-category="Электрооборудование">
-                    <span class="category-icon">⚡</span>
-                    <h3>Электрооборудование</h3>
-                    <p>Электрические цепи и аппаратура</p>
-                </div>
+        related: [],
 
-                <div class="category-card" data-category="Тормоза">
-                    <span class="category-icon">🛑</span>
-                    <h3>Тормозная система</h3>
-                    <p>Тормоза и пневматика</p>
-                </div>
-
-                <div class="category-card" data-category="Аварийные ситуации">
-                    <span class="category-icon">⚠️</span>
-                    <h3>Аварийные ситуации</h3>
-                    <p>Нештатные события</p>
-                </div>
-
-                <div class="category-card" data-category="Связь">
-                    <span class="category-icon">📡</span>
-                    <h3>Связь и управление</h3>
-                    <p>Связь и системы управления</p>
-                </div>
-
-                <div class="category-card" data-category="Движение">
-                    <span class="category-icon">🚦</span>
-                    <h3>Движение поездов</h3>
-                    <p>Сигнализация и движение</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="situations-section">
-            <div class="section-heading">
-                <h2>Все ситуации</h2>
-                <span id="resultCount"></span>
-            </div>
-
-            <div id="situations"></div>
-        </section>
-
-        <footer>
-            <p>METRO PTE · Учебный справочник</p>
-            <p>Версия 1.0</p>
-        </footer>
-
-    </main>
-
-    <script src="data.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
+        status: "draft",
+        lastVerified: null
+    }
+];
