@@ -6,6 +6,19 @@ const categoryCards = document.querySelectorAll(".category-card");
 
 let selectedCategory = null;
 
+// Названия типов материалов
+function getTypeName(type) {
+    const types = {
+        malfunction: "Неисправность",
+        emergency: "Аварийная ситуация",
+        procedure: "Порядок действий",
+        signal: "Сигнализация",
+        rule: "Нормативное требование"
+    };
+
+    return types[type] || "Другое";
+}
+
 // Получение отфильтрованных ситуаций
 function getFilteredSituations() {
     const query = searchInput.value.toLowerCase().trim();
@@ -21,33 +34,19 @@ function getFilteredSituations() {
             ...item.signs
         ].join(" ").toLowerCase();
 
-        const matchesSearch = searchableText.includes(query);
-
-        return matchesCategory && matchesSearch;
+        return matchesCategory && searchableText.includes(query);
     });
 }
 
 // Отображение карточек
 function renderSituations(list) {
-    <span class="tag">
-    ${
-        situation.type === "malfunction" ? "Неисправность" :
-        situation.type === "emergency" ? "Аварийная ситуация" :
-        situation.type === "procedure" ? "Порядок действий" :
-        situation.type === "signal" ? "Сигнализация" :
-        situation.type === "rule" ? "Нормативное требование" :
-        "Другое"
-    }
-    </span>
     situationsContainer.innerHTML = "";
 
-    if (resultCount) {
-        resultCount.textContent = `${list.length} найдено`;
-    }
+    resultCount.textContent = `${list.length} найдено`;
 
     if (list.length === 0) {
         situationsContainer.innerHTML =
-            "<p>В этой категории пока нет ситуаций.</p>";
+            "<p>Ситуаций не найдено.</p>";
         return;
     }
 
@@ -57,8 +56,15 @@ function renderSituations(list) {
 
         card.innerHTML = `
             <h3>${situation.title}</h3>
+
             <p>${situation.description}</p>
+
             <span class="tag">${situation.category}</span>
+
+            <span class="tag">
+                ${getTypeName(situation.type)}
+            </span>
+
             <span class="tag">${situation.status}</span>
         `;
 
@@ -82,9 +88,12 @@ function openSituation(id) {
         </button>
 
         <div class="situation-card details-card">
-            <span class="tag">${situation.status}</span>
 
             <h2>${situation.title}</h2>
+
+            <span class="tag">${situation.category}</span>
+            <span class="tag">${getTypeName(situation.type)}</span>
+            <span class="tag">${situation.status}</span>
 
             <h3>Описание</h3>
             <p>${situation.description}</p>
@@ -103,7 +112,14 @@ function openSituation(id) {
             <p>${situation.restrictions}</p>
 
             <h3>Нормативное основание</h3>
-            <p>${situation.source}</p>
+            <p>
+                ${situation.source.document || "Не указано"}
+                <br>
+                Раздел: ${situation.source.section || "Не указан"}
+                <br>
+                Пункт: ${situation.source.paragraph || "Не указан"}
+            </p>
+
         </div>
     `;
 
@@ -117,7 +133,7 @@ searchInput.addEventListener("input", () => {
     renderSituations(getFilteredSituations());
 });
 
-// Фильтрация по категориям
+// Категории
 categoryCards.forEach(card => {
     card.addEventListener("click", () => {
         const category = card.dataset.category;
@@ -138,6 +154,22 @@ categoryCards.forEach(card => {
             .scrollIntoView({ behavior: "smooth" });
     });
 });
+
+// Сброс фильтров
+const resetFilters = document.getElementById("resetFilters");
+
+if (resetFilters) {
+    resetFilters.addEventListener("click", () => {
+        selectedCategory = null;
+        searchInput.value = "";
+
+        categoryCards.forEach(card => {
+            card.classList.remove("active");
+        });
+
+        renderSituations(situations);
+    });
+}
 
 // Первый запуск
 renderSituations(situations);
