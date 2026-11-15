@@ -2,9 +2,13 @@
 const situationsContainer = document.getElementById("situations");
 const searchInput = document.getElementById("search");
 const resultCount = document.getElementById("resultCount");
+
 const categoryCards = document.querySelectorAll(".category-card");
+const typeButtons = document.querySelectorAll(".type-button");
+const resetFilters = document.getElementById("resetFilters");
 
 let selectedCategory = null;
+let selectedType = "all";
 
 // Названия типов материалов
 function getTypeName(type) {
@@ -19,7 +23,7 @@ function getTypeName(type) {
     return types[type] || "Другое";
 }
 
-// Получение отфильтрованных ситуаций
+// Фильтрация материалов
 function getFilteredSituations() {
     const query = searchInput.value.toLowerCase().trim();
 
@@ -27,14 +31,20 @@ function getFilteredSituations() {
         const matchesCategory =
             !selectedCategory || item.category === selectedCategory;
 
+        const matchesType =
+            selectedType === "all" || item.type === selectedType;
+
         const searchableText = [
             item.title,
             item.category,
             item.description,
-            ...item.signs
+            ...item.signs,
+            ...item.actions
         ].join(" ").toLowerCase();
 
-        return matchesCategory && searchableText.includes(query);
+        const matchesSearch = searchableText.includes(query);
+
+        return matchesCategory && matchesType && matchesSearch;
     });
 }
 
@@ -46,7 +56,7 @@ function renderSituations(list) {
 
     if (list.length === 0) {
         situationsContainer.innerHTML =
-            "<p>Ситуаций не найдено.</p>";
+            "<p>Материалов не найдено.</p>";
         return;
     }
 
@@ -76,7 +86,7 @@ function renderSituations(list) {
     });
 }
 
-// Открытие подробной информации
+// Подробная информация
 function openSituation(id) {
     const situation = situations.find(item => item.id === id);
 
@@ -84,7 +94,7 @@ function openSituation(id) {
 
     situationsContainer.innerHTML = `
         <button class="back-button" id="backButton">
-            ← Назад к ситуациям
+            ← Назад к материалам
         </button>
 
         <div class="situation-card details-card">
@@ -133,7 +143,7 @@ searchInput.addEventListener("input", () => {
     renderSituations(getFilteredSituations());
 });
 
-// Категории
+// Фильтр категорий
 categoryCards.forEach(card => {
     card.addEventListener("click", () => {
         const category = card.dataset.category;
@@ -155,16 +165,41 @@ categoryCards.forEach(card => {
     });
 });
 
-// Сброс фильтров
-const resetFilters = document.getElementById("resetFilters");
+// Фильтр типов
+typeButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        selectedType = button.dataset.type;
 
+        typeButtons.forEach(item => {
+            item.classList.toggle(
+                "active",
+                item.dataset.type === selectedType
+            );
+        });
+
+        renderSituations(getFilteredSituations());
+
+        document.querySelector(".situations-section")
+            .scrollIntoView({ behavior: "smooth" });
+    });
+});
+
+// Сброс фильтров
 if (resetFilters) {
     resetFilters.addEventListener("click", () => {
         selectedCategory = null;
+        selectedType = "all";
         searchInput.value = "";
 
         categoryCards.forEach(card => {
             card.classList.remove("active");
+        });
+
+        typeButtons.forEach(button => {
+            button.classList.toggle(
+                "active",
+                button.dataset.type === "all"
+            );
         });
 
         renderSituations(situations);
