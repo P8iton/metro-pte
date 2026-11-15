@@ -365,3 +365,8 @@ footer {
         font-size: 10px;
     }
 }
+.category-card.active {
+    border-color: var(--accent);
+    background: #202d40;
+    box-shadow: 0 0 0 1px var(--accent);
+}
