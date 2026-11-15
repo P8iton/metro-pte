@@ -10,7 +10,8 @@ const resetFilters = document.getElementById("resetFilters");
 let selectedCategory = null;
 let selectedType = "all";
 
-// Названия типов материалов
+
+// Названия типов
 function getTypeName(type) {
     const types = {
         malfunction: "Неисправность",
@@ -22,6 +23,52 @@ function getTypeName(type) {
 
     return types[type] || "Другое";
 }
+
+
+// Названия статусов
+function getStatusName(status) {
+    const statuses = {
+        draft: "Черновик",
+        review: "Требует проверки",
+        verified: "Проверено"
+    };
+
+    return statuses[status] || "Статус не указан";
+}
+
+
+// Форматирование даты без смещения часового пояса
+function formatDate(dateValue) {
+    if (!dateValue) return "Не указана";
+
+    const parts = dateValue.split("-");
+
+    if (parts.length !== 3) return "Не указана";
+
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+}
+
+
+// Создание текстового элемента
+function createTextElement(tag, text, className = "") {
+    const element = document.createElement(tag);
+    element.textContent = text || "";
+
+    if (className) {
+        element.className = className;
+    }
+
+    return element;
+}
+
+
+// Создание заголовка раздела
+function addSectionTitle(container, title) {
+    container.appendChild(
+        createTextElement("h3", title)
+    );
+}
+
 
 // Фильтрация материалов
 function getFilteredSituations() {
@@ -38,8 +85,13 @@ function getFilteredSituations() {
             item.title,
             item.category,
             item.description,
-            ...item.signs,
-            ...item.actions
+            item.restrictions,
+            item.source?.document,
+            item.source?.section,
+            item.source?.paragraph,
+            ...(item.signs || []),
+            ...(item.actions || []),
+            ...(item.rollingStock || [])
         ].join(" ").toLowerCase();
 
         const matchesSearch = searchableText.includes(query);
@@ -48,6 +100,7 @@ function getFilteredSituations() {
     });
 }
 
+
 // Отображение карточек
 function renderSituations(list) {
     situationsContainer.innerHTML = "";
@@ -55,8 +108,9 @@ function renderSituations(list) {
     resultCount.textContent = `${list.length} найдено`;
 
     if (list.length === 0) {
-        situationsContainer.innerHTML =
-            "<p>Материалов не найдено.</p>";
+        situationsContainer.appendChild(
+            createTextElement("p", "Материалов не найдено.")
+        );
         return;
     }
 
@@ -64,19 +118,37 @@ function renderSituations(list) {
         const card = document.createElement("div");
         card.className = "situation-card";
 
-        card.innerHTML = `
-            <h3>${situation.title}</h3>
+        card.appendChild(
+            createTextElement("h3", situation.title)
+        );
 
-            <p>${situation.description}</p>
+        card.appendChild(
+            createTextElement("p", situation.description)
+        );
 
-            <span class="tag">${situation.category}</span>
+        const tags = document.createElement("div");
+        tags.className = "tags";
 
-            <span class="tag">
-                ${getTypeName(situation.type)}
-            </span>
+        const categoryTag = createTextElement(
+            "span",
+            situation.category,
+            "tag"
+        );
 
-            <span class="tag">${situation.status}</span>
-        `;
+        const typeTag = createTextElement(
+            "span",
+            getTypeName(situation.type),
+            "tag"
+        );
+
+        const statusTag = createTextElement(
+            "span",
+            getStatusName(situation.status),
+            "tag"
+        );
+
+        tags.append(categoryTag, typeTag, statusTag);
+        card.appendChild(tags);
 
         card.addEventListener("click", () => {
             openSituation(situation.id);
@@ -86,62 +158,183 @@ function renderSituations(list) {
     });
 }
 
-// Подробная информация
+
+// Подробная информация о материале
 function openSituation(id) {
     const situation = situations.find(item => item.id === id);
 
     if (!situation) return;
 
-    situationsContainer.innerHTML = `
-        <button class="back-button" id="backButton">
-            ← Назад к материалам
-        </button>
+    situationsContainer.innerHTML = "";
 
-        <div class="situation-card details-card">
+    const backButton = document.createElement("button");
+    backButton.className = "back-button";
+    backButton.textContent = "← Назад к материалам";
 
-            <h2>${situation.title}</h2>
-
-            <span class="tag">${situation.category}</span>
-            <span class="tag">${getTypeName(situation.type)}</span>
-            <span class="tag">${situation.status}</span>
-
-            <h3>Описание</h3>
-            <p>${situation.description}</p>
-
-            <h3>Признаки</h3>
-            <ul>
-                ${situation.signs.map(sign => `<li>${sign}</li>`).join("")}
-            </ul>
-
-            <h3>Порядок действий</h3>
-            <ol>
-                ${situation.actions.map(action => `<li>${action}</li>`).join("")}
-            </ol>
-
-            <h3>Запреты и ограничения</h3>
-            <p>${situation.restrictions}</p>
-
-            <h3>Нормативное основание</h3>
-            <p>
-                ${situation.source.document || "Не указано"}
-                <br>
-                Раздел: ${situation.source.section || "Не указан"}
-                <br>
-                Пункт: ${situation.source.paragraph || "Не указан"}
-            </p>
-
-        </div>
-    `;
-
-    document.getElementById("backButton").addEventListener("click", () => {
+    backButton.addEventListener("click", () => {
         renderSituations(getFilteredSituations());
     });
+
+    situationsContainer.appendChild(backButton);
+
+    const details = document.createElement("div");
+    details.className = "situation-card details-card";
+
+    details.appendChild(
+        createTextElement("h2", situation.title)
+    );
+
+    // Метки материала
+    const tags = document.createElement("div");
+    tags.className = "tags";
+
+    tags.append(
+        createTextElement("span", situation.category, "tag"),
+        createTextElement("span", getTypeName(situation.type), "tag"),
+        createTextElement("span", getStatusName(situation.status), "tag")
+    );
+
+    details.appendChild(tags);
+
+    // Предупреждение о статусе
+    if (situation.status !== "verified") {
+        const warning = createTextElement(
+            "div",
+            "ВНИМАНИЕ: этот материал не имеет статуса «Проверено». Не используй его как подтверждённую инструкцию.",
+            "admin-note"
+        );
+
+        warning.style.marginTop = "18px";
+        warning.style.padding = "14px";
+        warning.style.border = "1px solid #9b7134";
+        warning.style.borderRadius = "8px";
+
+        details.appendChild(warning);
+
+    } else if (!situation.lastVerified) {
+        const warning = createTextElement(
+            "div",
+            "ВНИМАНИЕ: дата проверки не указана. Актуальность материала необходимо уточнить.",
+            "admin-note"
+        );
+
+        warning.style.marginTop = "18px";
+        details.appendChild(warning);
+    }
+
+    // Описание
+    addSectionTitle(details, "Описание");
+
+    details.appendChild(
+        createTextElement("p", situation.description)
+    );
+
+    // Подвижной состав
+    if (situation.rollingStock?.length) {
+        addSectionTitle(details, "Подвижной состав");
+
+        const stockList = document.createElement("ul");
+
+        situation.rollingStock.forEach(item => {
+            stockList.appendChild(
+                createTextElement("li", item)
+            );
+        });
+
+        details.appendChild(stockList);
+    }
+
+    // Признаки
+    if (situation.signs?.length) {
+        addSectionTitle(details, "Признаки");
+
+        const signsList = document.createElement("ul");
+
+        situation.signs.forEach(sign => {
+            signsList.appendChild(
+                createTextElement("li", sign)
+            );
+        });
+
+        details.appendChild(signsList);
+    }
+
+    // Порядок действий
+    if (situation.actions?.length) {
+        addSectionTitle(details, "Порядок действий");
+
+        const actionsList = document.createElement("ol");
+
+        situation.actions.forEach(action => {
+            actionsList.appendChild(
+                createTextElement("li", action)
+            );
+        });
+
+        details.appendChild(actionsList);
+    }
+
+    // Ограничения
+    if (situation.restrictions) {
+        addSectionTitle(details, "Запреты и ограничения");
+
+        details.appendChild(
+            createTextElement("p", situation.restrictions)
+        );
+    }
+
+    // Нормативное основание
+    addSectionTitle(details, "Нормативное основание");
+
+    const source = situation.source || {};
+
+    details.appendChild(
+        createTextElement(
+            "p",
+            `Документ: ${source.document || "Не указан"}`
+        )
+    );
+
+    details.appendChild(
+        createTextElement(
+            "p",
+            `Раздел: ${source.section || "Не указан"}`
+        )
+    );
+
+    details.appendChild(
+        createTextElement(
+            "p",
+            `Пункт: ${source.paragraph || "Не указан"}`
+        )
+    );
+
+    // Дата проверки
+    addSectionTitle(details, "Контроль актуальности");
+
+    details.appendChild(
+        createTextElement(
+            "p",
+            `Последняя проверка: ${formatDate(situation.lastVerified)}`
+        )
+    );
+
+    details.appendChild(
+        createTextElement(
+            "p",
+            `Статус материала: ${getStatusName(situation.status)}`
+        )
+    );
+
+    situationsContainer.appendChild(details);
 }
+
 
 // Поиск
 searchInput.addEventListener("input", () => {
     renderSituations(getFilteredSituations());
 });
+
 
 // Фильтр категорий
 categoryCards.forEach(card => {
@@ -165,6 +358,7 @@ categoryCards.forEach(card => {
     });
 });
 
+
 // Фильтр типов
 typeButtons.forEach(button => {
     button.addEventListener("click", () => {
@@ -183,6 +377,7 @@ typeButtons.forEach(button => {
             .scrollIntoView({ behavior: "smooth" });
     });
 });
+
 
 // Сброс фильтров
 if (resetFilters) {
@@ -205,6 +400,7 @@ if (resetFilters) {
         renderSituations(situations);
     });
 }
+
 
 // Первый запуск
 renderSituations(situations);
