@@ -145,9 +145,10 @@ function getFilteredSituations() {
 
         const stockList = item.rollingStock || [];
 
+        // Строгая фильтрация по модели состава
+        // При выборе конкретной модели тег "Все" не учитывается
         const matchesRollingStock =
             selectedRollingStock === "all" ||
-            stockList.includes("Все") ||
             stockList.includes(selectedRollingStock);
 
         const searchableText = [
