@@ -52,12 +52,20 @@ function getDepartmentName(department) {
 // ОПРЕДЕЛЕНИЕ ОТДЕЛА МАТЕРИАЛА
 
 function getSituationDepartment(item) {
-    // Старые материалы без department автоматически относятся
-    // к отделу управления поездом.
-
     return item.department === "labor"
         ? "labor"
         : "train";
+}
+
+
+// ПОЛУЧЕНИЕ ОСНОВНОГО ТЕКСТА МАТЕРИАЛА
+
+function getSituationContent(item) {
+    if (item.department === "labor") {
+        return item.content || item.description || "";
+    }
+
+    return item.description || "";
 }
 
 
@@ -112,6 +120,18 @@ function createTextElement(tag, text, className = "") {
     if (className) {
         element.className = className;
     }
+
+    return element;
+}
+
+
+// СОЗДАНИЕ ТЕКСТА С СОХРАНЕНИЕМ АБЗАЦЕВ
+
+function createContentElement(text, className = "") {
+    const element = createTextElement("p", text, className);
+
+    // Сохраняем переносы строк, введённые в админке.
+    element.style.whiteSpace = "pre-line";
 
     return element;
 }
@@ -176,19 +196,16 @@ function updateMenuItems() {
 
         let isActive = false;
 
-        // Переключение отделов
         if (department && !category && !type) {
             isActive = department === selectedDepartment;
         }
 
-        // Категории
         if (category) {
             isActive =
                 department === selectedDepartment &&
                 category === selectedCategory;
         }
 
-        // Типы материалов
         if (type) {
             isActive = type === selectedType;
         }
@@ -225,12 +242,8 @@ function updateDepartmentUI() {
         selectedDepartment === "all"
     );
 
-    // Выбор состава показываем только для отдела управления поездом
-    // и при просмотре всех отделов.
-
     stockSelector.hidden = selectedDepartment === "labor";
 
-    // Меняем подсказку поиска
     if (selectedDepartment === "all") {
         searchInput.placeholder = "Поиск по обоим отделам...";
     } else if (selectedDepartment === "train") {
@@ -292,37 +305,32 @@ function getFilteredSituations() {
 
         const itemDepartment = getSituationDepartment(item);
 
-        // Фильтр отдела
         const matchesDepartment =
             selectedDepartment === "all" ||
             itemDepartment === selectedDepartment;
 
-        // Фильтр категории
         const matchesCategory =
             !selectedCategory ||
             item.category === selectedCategory;
 
-        // Фильтр типа
         const matchesType =
             selectedType === "all" ||
             item.type === selectedType;
 
         const stockList = item.rollingStock || [];
 
-        // Для материалов по охране труда фильтр состава не применяется.
-        // При поиске по всем отделам материалы охраны труда также остаются
-        // доступными независимо от выбранной модели поезда.
-
         const matchesRollingStock =
             itemDepartment === "labor" ||
             selectedRollingStock === "all" ||
             stockList.includes(selectedRollingStock);
 
-        // Текст для поиска
+        // Индексируем основной текст ОТ и все остальные поля.
+
         const searchableText = [
             item.title,
             item.category,
             item.description,
+            item.content,
             item.restrictions,
             item.source?.document,
             item.source?.section,
@@ -412,15 +420,21 @@ function renderSituations(list) {
 
         card.appendChild(header);
 
+        // Для ОТ показываем фрагмент основного текста,
+        // для управления поездом — описание.
+
+        const previewText = getSituationContent(situation);
+
         card.appendChild(
-            createTextElement("p", situation.description)
+            createTextElement(
+                "p",
+                previewText,
+                "situation-preview"
+            )
         );
 
         const tags = document.createElement("div");
         tags.className = "tags";
-
-        // Показываем отдел на карточке, чтобы при общем поиске
-        // было понятно, откуда найден материал.
 
         const departmentTag = createTextElement(
             "span",
@@ -483,6 +497,7 @@ function openSituation(id) {
     );
 
     const department = getSituationDepartment(situation);
+    const isLabor = department === "labor";
 
     const tags = document.createElement("div");
     tags.className = "tags";
@@ -498,7 +513,7 @@ function openSituation(id) {
         createTextElement("span", getStatusName(situation.status), "tag")
     );
 
-    if (situation.rollingStock?.length) {
+    if (!isLabor && situation.rollingStock?.length) {
         situation.rollingStock.forEach(stock => {
             tags.appendChild(
                 createTextElement("span", stock, "tag")
@@ -523,61 +538,88 @@ function openSituation(id) {
         details.appendChild(warning);
     }
 
-    addSectionTitle(details, "Описание");
 
-    details.appendChild(
-        createTextElement("p", situation.description)
-    );
+    // ОТДЕЛ ОХРАНЫ ТРУДА
+    // Выводим единый основной текст без разделения на действия,
+    // признаки и ограничения.
 
-    if (situation.rollingStock?.length) {
-        addSectionTitle(details, "Подвижной состав");
+    if (isLabor) {
+        const mainContent = getSituationContent(situation);
 
-        const stockList = document.createElement("ul");
-
-        situation.rollingStock.forEach(item => {
-            stockList.appendChild(
-                createTextElement("li", item)
-            );
-        });
-
-        details.appendChild(stockList);
-    }
-
-    if (situation.signs?.length) {
-        addSectionTitle(details, "Признаки");
-
-        const signsList = document.createElement("ul");
-
-        situation.signs.forEach(sign => {
-            signsList.appendChild(
-                createTextElement("li", sign)
-            );
-        });
-
-        details.appendChild(signsList);
-    }
-
-    if (situation.actions?.length) {
-        addSectionTitle(details, "Порядок действий");
-
-        const actionsList = document.createElement("ol");
-
-        situation.actions.forEach(action => {
-            actionsList.appendChild(
-                createTextElement("li", action)
-            );
-        });
-
-        details.appendChild(actionsList);
-    }
-
-    if (situation.restrictions) {
-        addSectionTitle(details, "Запреты и ограничения");
+        addSectionTitle(details, "Основной текст");
 
         details.appendChild(
-            createTextElement("p", situation.restrictions)
+            createContentElement(
+                mainContent || "Текст материала пока не добавлен.",
+                "labor-content"
+            )
         );
     }
+
+
+    // ОТДЕЛ УПРАВЛЕНИЯ ПОЕЗДОМ
+    // Сохраняем прежнюю структуру отображения.
+
+    else {
+        addSectionTitle(details, "Описание");
+
+        details.appendChild(
+            createTextElement("p", situation.description)
+        );
+
+        if (situation.rollingStock?.length) {
+            addSectionTitle(details, "Подвижной состав");
+
+            const stockList = document.createElement("ul");
+
+            situation.rollingStock.forEach(item => {
+                stockList.appendChild(
+                    createTextElement("li", item)
+                );
+            });
+
+            details.appendChild(stockList);
+        }
+
+        if (situation.signs?.length) {
+            addSectionTitle(details, "Признаки");
+
+            const signsList = document.createElement("ul");
+
+            situation.signs.forEach(sign => {
+                signsList.appendChild(
+                    createTextElement("li", sign)
+                );
+            });
+
+            details.appendChild(signsList);
+        }
+
+        if (situation.actions?.length) {
+            addSectionTitle(details, "Порядок действий");
+
+            const actionsList = document.createElement("ol");
+
+            situation.actions.forEach(action => {
+                actionsList.appendChild(
+                    createTextElement("li", action)
+                );
+            });
+
+            details.appendChild(actionsList);
+        }
+
+        if (situation.restrictions) {
+            addSectionTitle(details, "Запреты и ограничения");
+
+            details.appendChild(
+                createTextElement("p", situation.restrictions)
+            );
+        }
+    }
+
+
+    // НОРМАТИВНОЕ ОСНОВАНИЕ
 
     addSectionTitle(details, "Нормативное основание");
 
@@ -597,6 +639,9 @@ function openSituation(id) {
             `Пункт: ${source.paragraph || "Не указан"}`
         )
     );
+
+
+    // КОНТРОЛЬ АКТУАЛЬНОСТИ
 
     addSectionTitle(details, "Контроль актуальности");
 
@@ -693,7 +738,6 @@ function openInfoPage(type) {
     infoPage.hidden = false;
     infoContent.innerHTML = "";
 
-    // Отдельная страница создателя
     if (type === "credits") {
         renderCredits();
 
@@ -759,9 +803,6 @@ infoBack.addEventListener("click", () => {
 
 function selectDepartment(department) {
     selectedDepartment = department;
-
-    // При переключении отдела сбрасываем категорию и тип,
-    // но сохраняем поисковый запрос и выбранный состав.
 
     selectedCategory = null;
     selectedType = "all";
@@ -850,6 +891,7 @@ menuItems.forEach(item => {
     item.addEventListener("click", () => {
 
         // Переключение отдела
+
         if (
             item.dataset.department &&
             !item.dataset.category &&
@@ -860,6 +902,7 @@ menuItems.forEach(item => {
         }
 
         // Выбор категории
+
         if (item.dataset.category) {
             selectedDepartment =
                 item.dataset.department || "train";
@@ -874,6 +917,7 @@ menuItems.forEach(item => {
         }
 
         // Выбор типа материала
+
         if (item.dataset.type) {
             selectedType = item.dataset.type;
             selectedCategory = null;
@@ -885,6 +929,7 @@ menuItems.forEach(item => {
         }
 
         // Информационные страницы
+
         if (item.dataset.info) {
             openInfoPage(item.dataset.info);
         }
