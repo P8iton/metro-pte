@@ -1,144 +1,315 @@
 
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#101318">
-    <title>METRO PTE</title>
+
+    <title>🚇 METRO PTE</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <header class="header">
+<header class="header">
+    <div class="container header-inner">
+
         <div class="brand">
-            <div class="brand-icon">🚇</div>
-            <div>
-                <h1>METRO PTE</h1>
-                <p>СПРАВОЧНАЯ СИСТЕМА МАШИНИСТА</p>
+            <div class="brand-title">🚇 METRO PTE</div>
+            <div class="brand-subtitle">
+                Справочник машиниста метрополитена
             </div>
         </div>
-    </header>
 
-    <main class="container">
+        <button
+            class="menu-toggle"
+            id="menuToggle"
+            aria-label="Открыть меню"
+            aria-expanded="false"
+        >
+            ☰
+        </button>
 
-        <section class="welcome">
-            <div>
-                <span class="eyebrow">БАЗА ЗНАНИЙ</span>
-                <h2>Справочник</h2>
-                <p>Неисправности, аварийные ситуации и порядок действий</p>
+    </div>
+</header>
+
+
+<!-- Затемнение фона -->
+<div class="menu-overlay" id="menuOverlay"></div>
+
+
+<!-- Боковое меню -->
+<aside class="side-menu" id="sideMenu">
+
+    <div class="side-menu-header">
+
+        <div>
+            <h2>Навигация</h2>
+            <p>METRO PTE</p>
+        </div>
+
+        <button
+            class="menu-close"
+            id="menuClose"
+            aria-label="Закрыть меню"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div class="side-menu-content">
+
+        <div class="menu-group">
+
+            <div class="menu-heading">
+                КАТЕГОРИИ
             </div>
-        </section>
 
-        <section class="search-section">
+            <button class="menu-item" data-category="Подвижной состав">
+                🚆 Подвижной состав
+            </button>
+
+            <button class="menu-item" data-category="Электрооборудование">
+                ⚡ Электрооборудование
+            </button>
+
+            <button class="menu-item" data-category="Тормоза">
+                🛑 Тормоза
+            </button>
+
+            <button class="menu-item" data-category="Аварийные ситуации">
+                🚨 Аварийные ситуации
+            </button>
+
+            <button class="menu-item" data-category="Связь">
+                📡 Связь
+            </button>
+
+            <button class="menu-item" data-category="Движение">
+                🚦 Движение
+            </button>
+
+            <button class="menu-item" data-category="Управление">
+                🎮 Управление
+            </button>
+
+        </div>
+
+
+        <div class="menu-divider"></div>
+
+
+        <div class="menu-group">
+
+            <div class="menu-heading">
+                ТИП МАТЕРИАЛА
+            </div>
+
+            <button class="menu-item" data-type="all">
+                📋 Все материалы
+            </button>
+
+            <button class="menu-item" data-type="malfunction">
+                🔧 Неисправности
+            </button>
+
+            <button class="menu-item" data-type="emergency">
+                🚨 Аварийные ситуации
+            </button>
+
+            <button class="menu-item" data-type="procedure">
+                📝 Порядок действий
+            </button>
+
+            <button class="menu-item" data-type="signal">
+                🚦 Сигнализация
+            </button>
+
+            <button class="menu-item" data-type="rule">
+                📖 Нормативные требования
+            </button>
+
+        </div>
+
+
+        <div class="menu-divider"></div>
+
+
+        <div class="menu-group">
+
+            <div class="menu-heading">
+                ИНФОРМАЦИЯ
+            </div>
+
+            <button class="menu-item" data-info="about">
+                ℹ️ О справочнике
+            </button>
+
+            <button class="menu-item" data-info="disclaimer">
+                ⚠️ Важная информация
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="side-menu-footer">
+        METRO PTE · Справочная система
+    </div>
+
+</aside>
+
+
+<main class="container main-page">
+
+
+    <!-- Главный экран -->
+    <section class="home-screen">
+
+        <div class="home-logo">
+            <div class="home-logo-icon">🚇</div>
+
+            <h1>METRO PTE</h1>
+
+            <p>
+                Справочник машиниста метрополитена
+            </p>
+        </div>
+
+
+        <!-- Поиск -->
+        <div class="search-section">
+
             <div class="search-box">
-                <span>⌕</span>
+
+                <span class="search-icon">⌕</span>
+
                 <input
                     type="text"
                     id="search"
-                    placeholder="Поиск по справочнику..."
+                    placeholder="Поиск неисправностей, сигналов и материалов..."
+                    autocomplete="off"
                 >
-            </div>
-        </section>
 
-        <section class="types-section">
-            <div class="section-heading">
-                <h2>Тип материала</h2>
-                <span>ФИЛЬТРАЦИЯ СПРАВОЧНИКА</span>
+                <button
+                    class="search-clear"
+                    id="searchClear"
+                    type="button"
+                    aria-label="Очистить поиск"
+                >
+                    ✕
+                </button>
+
             </div>
 
-            <div class="types-filter">
-                <button class="type-button active" data-type="all">
+        </div>
+
+
+        <!-- Выбор состава -->
+        <div class="stock-selector">
+
+            <div class="stock-selector-title">
+                ВЫБЕРИ ПОДВИЖНОЙ СОСТАВ
+            </div>
+
+            <div class="stock-buttons">
+
+                <button
+                    class="stock-button"
+                    data-rolling-stock="81-765"
+                >
+                    81-765
+                </button>
+
+                <button
+                    class="stock-button"
+                    data-rolling-stock="81-760"
+                >
+                    81-760
+                </button>
+
+                <button
+                    class="stock-button"
+                    data-rolling-stock="81-740"
+                >
+                    81-740
+                </button>
+
+                <button
+                    class="stock-button active"
+                    data-rolling-stock="all"
+                >
                     Все
                 </button>
 
-                <button class="type-button" data-type="malfunction">
-                    Неисправности
-                </button>
-
-                <button class="type-button" data-type="emergency">
-                    Аварийные ситуации
-                </button>
-
-                <button class="type-button" data-type="procedure">
-                    Порядок действий
-                </button>
-
-                <button class="type-button" data-type="signal">
-                    Сигнализация
-                </button>
-
-                <button class="type-button" data-type="rule">
-                    Нормативные требования
-                </button>
-            </div>
-        </section>
-
-        <section class="categories-section">
-            <div class="section-heading">
-                <h2>Категории</h2>
-                <span>РАЗДЕЛЫ СПРАВОЧНИКА</span>
             </div>
 
-            <div class="categories">
+        </div>
 
-                <div class="category-card" data-category="Подвижной состав">
-                    <span class="category-icon">🚆</span>
-                    <h3>Подвижной состав</h3>
-                    <p>Неисправности оборудования</p>
-                </div>
+    </section>
 
-                <div class="category-card" data-category="Электрооборудование">
-                    <span class="category-icon">⚡</span>
-                    <h3>Электрооборудование</h3>
-                    <p>Электрические цепи и аппаратура</p>
-                </div>
 
-                <div class="category-card" data-category="Тормоза">
-                    <span class="category-icon">🛑</span>
-                    <h3>Тормозная система</h3>
-                    <p>Тормоза и пневматика</p>
-                </div>
+    <!-- Информация о выбранных фильтрах -->
+    <section class="results-section">
 
-                <div class="category-card" data-category="Аварийные ситуации">
-                    <span class="category-icon">⚠️</span>
-                    <h3>Аварийные ситуации</h3>
-                    <p>Нештатные события</p>
-                </div>
+        <div class="section-heading">
 
-                <div class="category-card" data-category="Связь">
-                    <span class="category-icon">📡</span>
-                    <h3>Связь и управление</h3>
-                    <p>Связь и системы управления</p>
-                </div>
+            <div>
+                <h2 id="resultsTitle">Последние материалы</h2>
 
-                <div class="category-card" data-category="Движение">
-                    <span class="category-icon">🚦</span>
-                    <h3>Движение поездов</h3>
-                    <p>Сигнализация и движение</p>
-                </div>
-
-            </div>
-        </section>
-
-        <section class="situations-section">
-            <div class="section-heading">
-                <h2>Все материалы</h2>
-                <span id="resultCount"></span>
+                <p id="resultsSubtitle">
+                    Актуальная информация из справочника
+                </p>
             </div>
 
-            <div id="situations"></div>
-        </section>
+            <div id="resultCount">
+                0 найдено
+            </div>
 
-        <footer>
-            <p>METRO PTE · Учебный справочник · Портных А.М.</p>
-            <p>Версия 1.5</p>
-        </footer>
+        </div>
 
-    </main>
 
-    <script src="data.js"></script>
-    <script src="app.js"></script>
+        <div id="situations"></div>
+
+    </section>
+
+
+    <!-- Информационная страница -->
+    <section class="info-page" id="infoPage" hidden>
+
+        <button class="back-button" id="infoBack">
+            ← Назад
+        </button>
+
+        <div class="details-card" id="infoContent"></div>
+
+    </section>
+
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="container">
+
+        <p>🚇 METRO PTE</p>
+
+        <p>Справочная система машиниста метрополитена</p>
+
+    </div>
+
+</footer>
+
+
+<script src="data.js"></script>
+<script src="app.js"></script>
 
 </body>
+
 </html>
