@@ -12,19 +12,57 @@ const searchClear = document.getElementById("searchClear");
 const stockButtons = document.querySelectorAll(".stock-button");
 const menuItems = document.querySelectorAll(".menu-item");
 
+const departmentCards = document.querySelectorAll("[data-department-card]");
+const allDepartmentsButton = document.getElementById("allDepartmentsButton");
+const stockSelector = document.getElementById("stockSelector");
+
 const resultsTitle = document.getElementById("resultsTitle");
 const resultsSubtitle = document.getElementById("resultsSubtitle");
+
+const resultsSection = document.querySelector(".results-section");
 
 const infoPage = document.getElementById("infoPage");
 const infoContent = document.getElementById("infoContent");
 const infoBack = document.getElementById("infoBack");
 
+
+// СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+
+let selectedDepartment = "all";
 let selectedCategory = null;
 let selectedType = "all";
 let selectedRollingStock = "all";
+
 let currentView = "materials";
 
-// Названия типов
+
+// НАЗВАНИЯ ОТДЕЛОВ
+
+function getDepartmentName(department) {
+    const departments = {
+        all: "Все отделы",
+        train: "Управление поездом",
+        labor: "Охрана труда"
+    };
+
+    return departments[department] || "Управление поездом";
+}
+
+
+// ОПРЕДЕЛЕНИЕ ОТДЕЛА МАТЕРИАЛА
+
+function getSituationDepartment(item) {
+    // Старые материалы без department автоматически относятся
+    // к отделу управления поездом.
+
+    return item.department === "labor"
+        ? "labor"
+        : "train";
+}
+
+
+// НАЗВАНИЯ ТИПОВ
+
 function getTypeName(type) {
     const types = {
         malfunction: "Неисправность",
@@ -37,7 +75,9 @@ function getTypeName(type) {
     return types[type] || "Другое";
 }
 
-// Названия статусов
+
+// НАЗВАНИЯ СТАТУСОВ
+
 function getStatusName(status) {
     const statuses = {
         draft: "Черновик",
@@ -48,7 +88,9 @@ function getStatusName(status) {
     return statuses[status] || "Статус не указан";
 }
 
-// Форматирование даты
+
+// ФОРМАТИРОВАНИЕ ДАТЫ
+
 function formatDate(dateValue) {
     if (!dateValue) return "Не указана";
 
@@ -59,9 +101,12 @@ function formatDate(dateValue) {
     return `${parts[2]}.${parts[1]}.${parts[0]}`;
 }
 
-// Создание текстового элемента
+
+// СОЗДАНИЕ ТЕКСТОВОГО ЭЛЕМЕНТА
+
 function createTextElement(tag, text, className = "") {
     const element = document.createElement(tag);
+
     element.textContent = text || "";
 
     if (className) {
@@ -71,14 +116,29 @@ function createTextElement(tag, text, className = "") {
     return element;
 }
 
-// Создание заголовка раздела
+
+// СОЗДАНИЕ ЗАГОЛОВКА РАЗДЕЛА
+
 function addSectionTitle(container, title) {
     container.appendChild(
         createTextElement("h3", title)
     );
 }
 
-// Управление боковым меню
+
+// СОРТИРОВКА МАТЕРИАЛОВ
+
+function sortSituations(list) {
+    return [...list].sort((a, b) => {
+        return (b.lastVerified || "").localeCompare(
+            a.lastVerified || ""
+        );
+    });
+}
+
+
+// УПРАВЛЕНИЕ БОКОВЫМ МЕНЮ
+
 function openMenu() {
     sideMenu.classList.add("active");
     menuOverlay.classList.add("active");
@@ -105,21 +165,41 @@ document.addEventListener("keydown", event => {
     }
 });
 
-// Обновление активных пунктов меню
+
+// ОБНОВЛЕНИЕ АКТИВНЫХ ПУНКТОВ МЕНЮ
+
 function updateMenuItems() {
     menuItems.forEach(item => {
+        const department = item.dataset.department;
         const category = item.dataset.category;
         const type = item.dataset.type;
 
-        const isActive =
-            (category && category === selectedCategory) ||
-            (type && type === selectedType);
+        let isActive = false;
 
-        item.classList.toggle("active", Boolean(isActive));
+        // Переключение отделов
+        if (department && !category && !type) {
+            isActive = department === selectedDepartment;
+        }
+
+        // Категории
+        if (category) {
+            isActive =
+                department === selectedDepartment &&
+                category === selectedCategory;
+        }
+
+        // Типы материалов
+        if (type) {
+            isActive = type === selectedType;
+        }
+
+        item.classList.toggle("active", isActive);
     });
 }
 
-// Обновление кнопок состава
+
+// ОБНОВЛЕНИЕ КНОПОК ПОДВИЖНОГО СОСТАВА
+
 function updateStockButtons() {
     stockButtons.forEach(button => {
         button.classList.toggle(
@@ -129,28 +209,116 @@ function updateStockButtons() {
     });
 }
 
-// Фильтрация материалов
+
+// ОБНОВЛЕНИЕ ВЫБОРА ОТДЕЛА
+
+function updateDepartmentUI() {
+    departmentCards.forEach(card => {
+        card.classList.toggle(
+            "active",
+            card.dataset.departmentCard === selectedDepartment
+        );
+    });
+
+    allDepartmentsButton.classList.toggle(
+        "active",
+        selectedDepartment === "all"
+    );
+
+    // Выбор состава показываем только для отдела управления поездом
+    // и при просмотре всех отделов.
+
+    stockSelector.hidden = selectedDepartment === "labor";
+
+    // Меняем подсказку поиска
+    if (selectedDepartment === "all") {
+        searchInput.placeholder = "Поиск по обоим отделам...";
+    } else if (selectedDepartment === "train") {
+        searchInput.placeholder = "Поиск по управлению поездом...";
+    } else {
+        searchInput.placeholder = "Поиск по охране труда...";
+    }
+}
+
+
+// ОБНОВЛЕНИЕ ЗАГОЛОВКА РЕЗУЛЬТАТОВ
+
+function updateResultsHeading() {
+    const query = searchInput.value.trim();
+
+    if (query) {
+        resultsTitle.textContent = "Результаты поиска";
+
+        if (selectedDepartment === "all") {
+            resultsSubtitle.textContent =
+                "Результаты по обоим отделам";
+        } else {
+            resultsSubtitle.textContent =
+                `Результаты: ${getDepartmentName(selectedDepartment)}`;
+        }
+
+        return;
+    }
+
+    if (selectedCategory) {
+        resultsTitle.textContent = selectedCategory;
+        resultsSubtitle.textContent = "Материалы выбранной категории";
+        return;
+    }
+
+    if (selectedType !== "all") {
+        resultsTitle.textContent = getTypeName(selectedType);
+        resultsSubtitle.textContent = "Фильтр по типу материала";
+        return;
+    }
+
+    if (selectedDepartment === "all") {
+        resultsTitle.textContent = "Последние материалы";
+        resultsSubtitle.textContent = "Поиск по всем отделам справочника";
+        return;
+    }
+
+    resultsTitle.textContent = getDepartmentName(selectedDepartment);
+    resultsSubtitle.textContent = "Материалы выбранного отдела";
+}
+
+
+// ФИЛЬТРАЦИЯ МАТЕРИАЛОВ
+
 function getFilteredSituations() {
     const query = searchInput.value.toLowerCase().trim();
 
     return situations.filter(item => {
 
+        const itemDepartment = getSituationDepartment(item);
+
+        // Фильтр отдела
+        const matchesDepartment =
+            selectedDepartment === "all" ||
+            itemDepartment === selectedDepartment;
+
+        // Фильтр категории
         const matchesCategory =
             !selectedCategory ||
             item.category === selectedCategory;
 
+        // Фильтр типа
         const matchesType =
             selectedType === "all" ||
             item.type === selectedType;
 
         const stockList = item.rollingStock || [];
 
-        // Строгая фильтрация по модели состава
-        // При выборе конкретной модели тег "Все" не учитывается
+        // Для материалов по охране труда фильтр состава не применяется.
+        // При поиске по всем отделам материалы охраны труда также остаются
+        // доступными независимо от выбранной модели поезда.
+
         const matchesRollingStock =
+            itemDepartment === "labor" ||
             selectedRollingStock === "all" ||
             stockList.includes(selectedRollingStock);
 
+        // Текст для поиска
         const searchableText = [
             item.title,
             item.category,
@@ -159,15 +327,17 @@ function getFilteredSituations() {
             item.source?.document,
             item.source?.section,
             item.source?.paragraph,
-            ...(item.signs || []),
-            ...(item.actions || []),
-            ...(item.rollingStock || [])
+            ...((item.signs || [])),
+            ...((item.actions || [])),
+            ...((item.rollingStock || [])),
+            getDepartmentName(itemDepartment)
         ].join(" ").toLowerCase();
 
         const matchesSearch =
             searchableText.includes(query);
 
         return (
+            matchesDepartment &&
             matchesCategory &&
             matchesType &&
             matchesRollingStock &&
@@ -176,19 +346,28 @@ function getFilteredSituations() {
     });
 }
 
-// Переход к списку материалов
+
+// ПЕРЕХОД К СПИСКУ МАТЕРИАЛОВ
+
 function showMaterials() {
     currentView = "materials";
 
     infoPage.hidden = true;
     situationsContainer.style.display = "flex";
+    resultsSection.style.display = "block";
 
-    document.querySelector(".results-section").style.display = "block";
+    updateDepartmentUI();
+    updateMenuItems();
+    updateResultsHeading();
 
-    renderSituations(getFilteredSituations());
+    renderSituations(
+        sortSituations(getFilteredSituations())
+    );
 }
 
-// Отображение карточек
+
+// ОТОБРАЖЕНИЕ КАРТОЧЕК
+
 function renderSituations(list) {
     situationsContainer.innerHTML = "";
 
@@ -215,6 +394,8 @@ function renderSituations(list) {
 
     list.forEach(situation => {
 
+        const department = getSituationDepartment(situation);
+
         const card = document.createElement("div");
         card.className = "situation-card";
 
@@ -237,6 +418,17 @@ function renderSituations(list) {
 
         const tags = document.createElement("div");
         tags.className = "tags";
+
+        // Показываем отдел на карточке, чтобы при общем поиске
+        // было понятно, откуда найден материал.
+
+        const departmentTag = createTextElement(
+            "span",
+            getDepartmentName(department),
+            `tag department-tag ${department}`
+        );
+
+        tags.appendChild(departmentTag);
 
         tags.append(
             createTextElement("span", situation.category, "tag"),
@@ -262,7 +454,9 @@ function renderSituations(list) {
     });
 }
 
-// Подробная информация
+
+// ПОДРОБНАЯ ИНФОРМАЦИЯ О МАТЕРИАЛЕ
+
 function openSituation(id) {
     const situation = situations.find(item => item.id === id);
 
@@ -288,10 +482,17 @@ function openSituation(id) {
         createTextElement("h2", situation.title)
     );
 
+    const department = getSituationDepartment(situation);
+
     const tags = document.createElement("div");
     tags.className = "tags";
 
     tags.append(
+        createTextElement(
+            "span",
+            getDepartmentName(department),
+            `tag department-tag ${department}`
+        ),
         createTextElement("span", situation.category, "tag"),
         createTextElement("span", getTypeName(situation.type), "tag"),
         createTextElement("span", getStatusName(situation.status), "tag")
@@ -418,7 +619,9 @@ function openSituation(id) {
     });
 }
 
-// Страница создателя
+
+// СТРАНИЦА СОЗДАТЕЛЯ
+
 function renderCredits() {
     const card = document.createElement("div");
     card.className = "credits-card";
@@ -437,7 +640,7 @@ function renderCredits() {
 
     const label = createTextElement(
         "div",
-        "СПРАВОЧНИК МАШИНИСТА МЕТРОПОЛИТЕНА",
+        "СПРАВОЧНАЯ СИСТЕМА МАШИНИСТА МЕТРОПОЛИТЕНА",
         "credits-label"
     );
 
@@ -478,13 +681,15 @@ function renderCredits() {
     infoContent.appendChild(card);
 }
 
-// Информационные страницы
+
+// ИНФОРМАЦИОННЫЕ СТРАНИЦЫ
+
 function openInfoPage(type) {
     closeMenu();
 
     currentView = "info";
 
-    document.querySelector(".results-section").style.display = "none";
+    resultsSection.style.display = "none";
     infoPage.hidden = false;
     infoContent.innerHTML = "";
 
@@ -504,7 +709,8 @@ function openInfoPage(type) {
         about: {
             title: "О справочнике",
             paragraphs: [
-                "METRO PTE — справочная система для изучения устройства подвижного состава, неисправностей, сигнализации и нормативных требований метрополитена.",
+                "METRO PTE — справочная система для изучения устройства подвижного состава, неисправностей, сигнализации, нормативных требований и вопросов охраны труда.",
+                "Справочник разделён на два основных отдела: «Управление поездом» и «Охрана труда».",
                 "Материалы сгруппированы по категориям и версиям подвижного состава.",
                 "Информация в справочнике должна сверяться с действующими нормативными документами и инструкциями метрополитена."
             ]
@@ -541,14 +747,55 @@ function openInfoPage(type) {
     });
 }
 
+
+// ВОЗВРАТ ИЗ ИНФОРМАЦИОННОЙ СТРАНИЦЫ
+
 infoBack.addEventListener("click", () => {
     showMaterials();
 });
 
-// Поиск
+
+// ПЕРЕКЛЮЧЕНИЕ ОТДЕЛОВ
+
+function selectDepartment(department) {
+    selectedDepartment = department;
+
+    // При переключении отдела сбрасываем категорию и тип,
+    // но сохраняем поисковый запрос и выбранный состав.
+
+    selectedCategory = null;
+    selectedType = "all";
+
+    closeMenu();
+
+    showMaterials();
+}
+
+
+// КАРТОЧКИ ОТДЕЛОВ НА ГЛАВНОЙ
+
+departmentCards.forEach(card => {
+    card.addEventListener("click", () => {
+        selectDepartment(card.dataset.departmentCard);
+    });
+});
+
+
+// КНОПКА ОБЩЕГО ПОИСКА
+
+allDepartmentsButton.addEventListener("click", () => {
+    selectDepartment("all");
+});
+
+
+// ПОИСК
+
 searchInput.addEventListener("input", () => {
     if (currentView !== "materials") {
-        showMaterials();
+        currentView = "materials";
+
+        infoPage.hidden = true;
+        resultsSection.style.display = "block";
     }
 
     searchClear.classList.toggle(
@@ -556,30 +803,28 @@ searchInput.addEventListener("input", () => {
         searchInput.value.length > 0
     );
 
-    renderSituations(getFilteredSituations());
+    updateResultsHeading();
 
-    if (searchInput.value.trim()) {
-        resultsTitle.textContent = "Результаты поиска";
-        resultsSubtitle.textContent = "Материалы по твоему запросу";
-    } else {
-        resultsTitle.textContent = "Последние материалы";
-        resultsSubtitle.textContent = "Актуальная информация из справочника";
-    }
+    renderSituations(
+        sortSituations(getFilteredSituations())
+    );
 });
 
-// Очистка поиска
+
+// ОЧИСТКА ПОИСКА
+
 searchClear.addEventListener("click", () => {
     searchInput.value = "";
     searchClear.classList.remove("visible");
 
-    resultsTitle.textContent = "Последние материалы";
-    resultsSubtitle.textContent = "Актуальная информация из справочника";
+    showMaterials();
 
-    renderSituations(getFilteredSituations());
     searchInput.focus();
 });
 
-// Выбор состава
+
+// ВЫБОР ПОДВИЖНОГО СОСТАВА
+
 stockButtons.forEach(button => {
     button.addEventListener("click", () => {
         selectedRollingStock = button.dataset.rollingStock;
@@ -589,58 +834,74 @@ stockButtons.forEach(button => {
         if (currentView !== "materials") {
             showMaterials();
         } else {
-            renderSituations(getFilteredSituations());
+            updateResultsHeading();
+
+            renderSituations(
+                sortSituations(getFilteredSituations())
+            );
         }
     });
 });
 
-// Пункты бокового меню
+
+// ПУНКТЫ БОКОВОГО МЕНЮ
+
 menuItems.forEach(item => {
     item.addEventListener("click", () => {
 
+        // Переключение отдела
+        if (
+            item.dataset.department &&
+            !item.dataset.category &&
+            !item.dataset.type
+        ) {
+            selectDepartment(item.dataset.department);
+            return;
+        }
+
+        // Выбор категории
         if (item.dataset.category) {
+            selectedDepartment =
+                item.dataset.department || "train";
+
             selectedCategory = item.dataset.category;
             selectedType = "all";
 
             closeMenu();
-            updateMenuItems();
-            showMaterials();
 
-            resultsTitle.textContent = item.dataset.category;
-            resultsSubtitle.textContent = "Материалы выбранной категории";
+            showMaterials();
+            return;
         }
 
+        // Выбор типа материала
         if (item.dataset.type) {
             selectedType = item.dataset.type;
             selectedCategory = null;
 
             closeMenu();
-            updateMenuItems();
+
             showMaterials();
-
-            resultsTitle.textContent =
-                selectedType === "all"
-                    ? "Все материалы"
-                    : getTypeName(selectedType);
-
-            resultsSubtitle.textContent = "Фильтр по типу материала";
+            return;
         }
 
+        // Информационные страницы
         if (item.dataset.info) {
             openInfoPage(item.dataset.info);
         }
     });
 });
 
-// Первый запуск
+
+// ПЕРВЫЙ ЗАПУСК
+
 updateStockButtons();
+updateDepartmentUI();
 updateMenuItems();
 
 renderSituations(
-    [...situations]
-        .sort((a, b) => {
-            return (b.lastVerified || "").localeCompare(
-                a.lastVerified || ""
-            );
-        })
+    sortSituations(
+        getFilteredSituations()
+    )
 );
+
+updateResultsHeading();
