@@ -6,20 +6,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>🚇 METRO PTE</title>
+    <meta name="theme-color" content="#101114">
+    <meta name="description" content="METRO PTE — справочник машиниста метрополитена">
+
+    <title>METRO PTE — Справочник машиниста</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header class="header">
-    <div class="container header-inner">
+    <!-- ШАПКА -->
+    <header class="header">
 
-        <div class="brand">
-            <div class="brand-title">🚇 METRO PTE</div>
-            <div class="brand-subtitle">
-                Справочник машиниста метрополитена
+        <div class="header-brand">
+            <span class="header-logo">🚇</span>
+
+            <div>
+                <div class="header-title">METRO PTE</div>
+                <div class="header-subtitle">Справочник машиниста</div>
             </div>
         </div>
 
@@ -32,45 +37,42 @@
             ☰
         </button>
 
-    </div>
-</header>
+    </header>
 
 
-<!-- Затемнение фона -->
-<div class="menu-overlay" id="menuOverlay"></div>
+    <!-- ЗАТЕМНЕНИЕ -->
+    <div class="menu-overlay" id="menuOverlay"></div>
 
 
-<!-- Боковое меню -->
-<aside class="side-menu" id="sideMenu">
+    <!-- БОКОВОЕ МЕНЮ -->
+    <aside class="side-menu" id="sideMenu">
 
-    <div class="side-menu-header">
+        <div class="side-menu-header">
 
-        <div>
-            <h2>Навигация</h2>
-            <p>METRO PTE</p>
+            <div>
+                <h2>Меню</h2>
+                <p>Навигация по справочнику</p>
+            </div>
+
+            <button
+                class="menu-close"
+                id="menuClose"
+                aria-label="Закрыть меню"
+            >
+                ×
+            </button>
+
         </div>
 
-        <button
-            class="menu-close"
-            id="menuClose"
-            aria-label="Закрыть меню"
-        >
-            ✕
-        </button>
 
-    </div>
+        <div class="menu-content">
 
-
-    <div class="side-menu-content">
-
-        <div class="menu-group">
-
-            <div class="menu-heading">
+            <div class="menu-section-title">
                 КАТЕГОРИИ
             </div>
 
             <button class="menu-item" data-category="Подвижной состав">
-                🚆 Подвижной состав
+                🚇 Подвижной состав
             </button>
 
             <button class="menu-item" data-category="Электрооборудование">
@@ -97,24 +99,20 @@
                 🎮 Управление
             </button>
 
-        </div>
+
+            <div class="menu-divider"></div>
 
 
-        <div class="menu-divider"></div>
-
-
-        <div class="menu-group">
-
-            <div class="menu-heading">
+            <div class="menu-section-title">
                 ТИП МАТЕРИАЛА
             </div>
 
             <button class="menu-item" data-type="all">
-                📋 Все материалы
+                📚 Все материалы
             </button>
 
             <button class="menu-item" data-type="malfunction">
-                🔧 Неисправности
+                ⚙️ Неисправности
             </button>
 
             <button class="menu-item" data-type="emergency">
@@ -122,7 +120,7 @@
             </button>
 
             <button class="menu-item" data-type="procedure">
-                📝 Порядок действий
+                📋 Порядок действий
             </button>
 
             <button class="menu-item" data-type="signal">
@@ -133,15 +131,11 @@
                 📖 Нормативные требования
             </button>
 
-        </div>
+
+            <div class="menu-divider"></div>
 
 
-        <div class="menu-divider"></div>
-
-
-        <div class="menu-group">
-
-            <div class="menu-heading">
+            <div class="menu-section-title">
                 ИНФОРМАЦИЯ
             </div>
 
@@ -153,38 +147,34 @@
                 ⚠️ Важная информация
             </button>
 
+            <button class="menu-item" data-info="credits">
+                👤 Создатель
+            </button>
+
         </div>
 
-    </div>
+    </aside>
 
 
-    <div class="side-menu-footer">
-        METRO PTE · Справочная система
-    </div>
-
-</aside>
+    <!-- ОСНОВНАЯ СТРАНИЦА -->
+    <main class="main-page">
 
 
-<main class="container main-page">
+        <!-- ГЛАВНЫЙ ЭКРАН -->
+        <section class="home-screen">
 
-
-    <!-- Главный экран -->
-    <section class="home-screen">
-
-        <div class="home-logo">
-            <div class="home-logo-icon">🚇</div>
+            <div class="home-logo">
+                🚇
+            </div>
 
             <h1>METRO PTE</h1>
 
-            <p>
-                Справочник машиниста метрополитена
+            <p class="home-description">
+                Справочная система машиниста метрополитена
             </p>
-        </div>
 
 
-        <!-- Поиск -->
-        <div class="search-section">
-
+            <!-- ПОИСК -->
             <div class="search-box">
 
                 <span class="search-icon">⌕</span>
@@ -192,124 +182,132 @@
                 <input
                     type="text"
                     id="search"
-                    placeholder="Поиск неисправностей, сигналов и материалов..."
+                    placeholder="Поиск по справочнику..."
                     autocomplete="off"
                 >
 
                 <button
-                    class="search-clear"
                     id="searchClear"
+                    class="search-clear"
                     type="button"
                     aria-label="Очистить поиск"
                 >
-                    ✕
+                    ×
                 </button>
 
             </div>
 
-        </div>
 
+            <!-- ВЫБОР СОСТАВА -->
+            <div class="stock-selector">
 
-        <!-- Выбор состава -->
-        <div class="stock-selector">
+                <div class="stock-selector-title">
+                    ВЫБЕРИ ПОДВИЖНОЙ СОСТАВ
+                </div>
 
-            <div class="stock-selector-title">
-                ВЫБЕРИ ПОДВИЖНОЙ СОСТАВ
+                <div class="stock-buttons">
+
+                    <button
+                        class="stock-button active"
+                        data-rolling-stock="all"
+                        type="button"
+                    >
+                        Все
+                    </button>
+
+                    <button
+                        class="stock-button"
+                        data-rolling-stock="81-765"
+                        type="button"
+                    >
+                        81-765
+                    </button>
+
+                    <button
+                        class="stock-button"
+                        data-rolling-stock="81-760"
+                        type="button"
+                    >
+                        81-760
+                    </button>
+
+                    <button
+                        class="stock-button"
+                        data-rolling-stock="81-740"
+                        type="button"
+                    >
+                        81-740
+                    </button>
+
+                </div>
+
             </div>
 
-            <div class="stock-buttons">
+        </section>
 
-                <button
-                    class="stock-button"
-                    data-rolling-stock="81-765"
-                >
-                    81-765
-                </button>
 
-                <button
-                    class="stock-button"
-                    data-rolling-stock="81-760"
-                >
-                    81-760
-                </button>
+        <!-- РЕЗУЛЬТАТЫ -->
+        <section class="results-section">
 
-                <button
-                    class="stock-button"
-                    data-rolling-stock="81-740"
-                >
-                    81-740
-                </button>
+            <div class="results-header">
 
-                <button
-                    class="stock-button active"
-                    data-rolling-stock="all"
-                >
-                    Все
-                </button>
+                <div>
+                    <h2 id="resultsTitle">
+                        Последние материалы
+                    </h2>
+
+                    <p id="resultsSubtitle">
+                        Актуальная информация из справочника
+                    </p>
+                </div>
+
+                <span id="resultCount">
+                    0 найдено
+                </span>
 
             </div>
 
-        </div>
 
-    </section>
+            <!-- КАРТОЧКИ МАТЕРИАЛОВ -->
+            <div id="situations" class="situations-container"></div>
 
-
-    <!-- Информация о выбранных фильтрах -->
-    <section class="results-section">
-
-        <div class="section-heading">
-
-            <div>
-                <h2 id="resultsTitle">Последние материалы</h2>
-
-                <p id="resultsSubtitle">
-                    Актуальная информация из справочника
-                </p>
-            </div>
-
-            <div id="resultCount">
-                0 найдено
-            </div>
-
-        </div>
+        </section>
 
 
-        <div id="situations"></div>
+        <!-- ИНФОРМАЦИОННЫЕ СТРАНИЦЫ -->
+        <section id="infoPage" class="info-page" hidden>
 
-    </section>
+            <button
+                id="infoBack"
+                class="back-button"
+                type="button"
+            >
+                ← Назад к материалам
+            </button>
 
+            <div id="infoContent" class="info-content"></div>
 
-    <!-- Информационная страница -->
-    <section class="info-page" id="infoPage" hidden>
-
-        <button class="back-button" id="infoBack">
-            ← Назад
-        </button>
-
-        <div class="details-card" id="infoContent"></div>
-
-    </section>
-
-
-</main>
+        </section>
 
 
-<footer class="footer">
-
-    <div class="container">
-
-        <p>🚇 METRO PTE</p>
-
-        <p>Справочная система машиниста метрополитена</p>
-
-    </div>
-
-</footer>
+    </main>
 
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+    <!-- ПОДВАЛ -->
+    <footer class="site-footer">
+
+        <p>METRO PTE</p>
+
+        <span>Автор и разработчик: Портных А. М.</span>
+
+        <span>© 2026</span>
+
+    </footer>
+
+
+    <!-- БАЗА ДАННЫХ И ПРИЛОЖЕНИЕ -->
+    <script src="data.js"></script>
+    <script src="app.js"></script>
 
 </body>
-
 </html>
