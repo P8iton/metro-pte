@@ -418,6 +418,66 @@ function openSituation(id) {
     });
 }
 
+// Страница создателя
+function renderCredits() {
+    const card = document.createElement("div");
+    card.className = "credits-card";
+
+    const logo = createTextElement(
+        "div",
+        "🚇",
+        "credits-logo"
+    );
+
+    const project = createTextElement(
+        "h2",
+        "METRO PTE",
+        "credits-project"
+    );
+
+    const label = createTextElement(
+        "div",
+        "СПРАВОЧНИК МАШИНИСТА МЕТРОПОЛИТЕНА",
+        "credits-label"
+    );
+
+    const divider = createTextElement(
+        "div",
+        "",
+        "credits-divider"
+    );
+
+    const author = createTextElement(
+        "p",
+        "Портных А. М.",
+        "credits-author"
+    );
+
+    const role = createTextElement(
+        "div",
+        "Автор и разработчик проекта",
+        "credits-role"
+    );
+
+    const copyright = createTextElement(
+        "div",
+        "© 2026 METRO PTE",
+        "credits-copyright"
+    );
+
+    card.append(
+        logo,
+        project,
+        label,
+        divider,
+        author,
+        role,
+        copyright
+    );
+
+    infoContent.appendChild(card);
+}
+
 // Информационные страницы
 function openInfoPage(type) {
     closeMenu();
@@ -427,6 +487,18 @@ function openInfoPage(type) {
     document.querySelector(".results-section").style.display = "none";
     infoPage.hidden = false;
     infoContent.innerHTML = "";
+
+    // Отдельная страница создателя
+    if (type === "credits") {
+        renderCredits();
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+
+        return;
+    }
 
     const content = {
         about: {
