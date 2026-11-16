@@ -25,6 +25,8 @@ const infoPage = document.getElementById("infoPage");
 const infoContent = document.getElementById("infoContent");
 const infoBack = document.getElementById("infoBack");
 
+const scrollTopButton = document.getElementById("scrollTopButton");
+
 
 // СОСТОЯНИЕ ПРИЛОЖЕНИЯ
 
@@ -130,7 +132,6 @@ function createTextElement(tag, text, className = "") {
 function createContentElement(text, className = "") {
     const element = createTextElement("p", text, className);
 
-    // Сохраняем переносы строк, введённые в админке.
     element.style.whiteSpace = "pre-line";
 
     return element;
@@ -154,6 +155,30 @@ function sortSituations(list) {
             a.lastVerified || ""
         );
     });
+}
+
+
+// КНОПКА ПРОКРУТКИ ВВЕРХ
+
+function updateScrollTopButton() {
+    if (!scrollTopButton) return;
+
+    scrollTopButton.hidden = window.scrollY < 300;
+}
+
+if (scrollTopButton) {
+    window.addEventListener("scroll", updateScrollTopButton, {
+        passive: true
+    });
+
+    scrollTopButton.addEventListener("click", () => {
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    });
+
+    updateScrollTopButton();
 }
 
 
@@ -296,6 +321,154 @@ function updateResultsHeading() {
 }
 
 
+// ПРОВЕРКА ССЫЛКИ НА ВЛОЖЕНИЕ
+
+function getSafeAttachmentUrl(url) {
+    if (typeof url !== "string") {
+        return null;
+    }
+
+    const normalized = url.trim();
+
+    // Разрешаем только файлы из папки attachments.
+    // Это не позволяет вставить в ссылку javascript-код
+    // или произвольный путь к файлу.
+    if (
+        !normalized.startsWith("attachments/") ||
+        normalized.includes("..") ||
+        normalized.includes("\\")
+    ) {
+        return null;
+    }
+
+    return normalized;
+}
+
+
+// ПОЛУЧЕНИЕ ВЛОЖЕНИЙ МАТЕРИАЛА
+
+function getSituationAttachments(situation) {
+    if (!Array.isArray(situation.attachments)) {
+        return [];
+    }
+
+    return situation.attachments.filter(attachment => {
+        return (
+            attachment &&
+            typeof attachment.name === "string" &&
+            getSafeAttachmentUrl(attachment.url)
+        );
+    });
+}
+
+
+// ОТОБРАЖЕНИЕ ВЛОЖЕНИЙ
+
+function renderSituationAttachments(container, situation) {
+    const attachments = getSituationAttachments(situation);
+
+    if (!attachments.length) {
+        return;
+    }
+
+    addSectionTitle(container, "Прикреплённые файлы");
+
+    const list = document.createElement("div");
+    list.className = "attachments-list";
+
+    list.style.display = "flex";
+    list.style.flexDirection = "column";
+    list.style.gap = "10px";
+    list.style.marginTop = "12px";
+
+    attachments.forEach(attachment => {
+        const url = getSafeAttachmentUrl(attachment.url);
+
+        if (!url) {
+            return;
+        }
+
+        const item = document.createElement("div");
+        item.className = "attachment-link-item";
+
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.justifyContent = "space-between";
+        item.style.flexWrap = "wrap";
+        item.style.gap = "10px";
+        item.style.padding = "12px";
+        item.style.background = "rgba(255, 255, 255, 0.035)";
+        item.style.border = "1px solid rgba(255, 255, 255, 0.09)";
+        item.style.borderRadius = "9px";
+
+        const fileInfo = document.createElement("div");
+
+        fileInfo.style.minWidth = "0";
+        fileInfo.style.flex = "1";
+        fileInfo.style.overflowWrap = "anywhere";
+
+        const fileName = createTextElement(
+            "div",
+            attachment.name,
+            "attachment-file-name"
+        );
+
+        fileName.style.fontWeight = "500";
+
+        const filePath = createTextElement(
+            "div",
+            url.split("/").pop(),
+            "attachment-file-meta"
+        );
+
+        filePath.style.marginTop = "4px";
+        filePath.style.color = "#929baa";
+        filePath.style.fontSize = "12px";
+
+        fileInfo.append(fileName, filePath);
+
+        const actions = document.createElement("div");
+
+        actions.style.display = "flex";
+        actions.style.flexWrap = "wrap";
+        actions.style.gap = "8px";
+
+        const openLink = document.createElement("a");
+
+        openLink.href = url;
+        openLink.target = "_blank";
+        openLink.rel = "noopener noreferrer";
+        openLink.textContent = "Открыть";
+
+        const downloadLink = document.createElement("a");
+
+        downloadLink.href = url;
+        downloadLink.download = "";
+        downloadLink.textContent = "Скачать";
+
+        [openLink, downloadLink].forEach(link => {
+            link.style.display = "inline-block";
+            link.style.padding = "7px 11px";
+            link.style.border = "1px solid #3a485c";
+            link.style.borderRadius = "6px";
+            link.style.background = "#293444";
+            link.style.color = "#edf0f5";
+            link.style.textDecoration = "none";
+            link.style.fontSize = "13px";
+        });
+
+        actions.append(openLink, downloadLink);
+
+        item.append(fileInfo, actions);
+        list.appendChild(item);
+    });
+
+    if (list.children.length) {
+        container.appendChild(list);
+    }
+}
+
+
 // ФИЛЬТРАЦИЯ МАТЕРИАЛОВ
 
 function getFilteredSituations() {
@@ -324,8 +497,6 @@ function getFilteredSituations() {
             selectedRollingStock === "all" ||
             stockList.includes(selectedRollingStock);
 
-        // Индексируем основной текст ОТ и все остальные поля.
-
         const searchableText = [
             item.title,
             item.category,
@@ -338,6 +509,7 @@ function getFilteredSituations() {
             ...((item.signs || [])),
             ...((item.actions || [])),
             ...((item.rollingStock || [])),
+            ...getSituationAttachments(item).map(file => file.name),
             getDepartmentName(itemDepartment)
         ].join(" ").toLowerCase();
 
@@ -420,18 +592,14 @@ function renderSituations(list) {
 
         card.appendChild(header);
 
-        // Для ОТ показываем фрагмент основного текста,
-        // для управления поездом — описание.
+        // Описание показываем только в разделе «Управление поездом».
+        // В «Охране труда» основной текст доступен после открытия карточки.
 
-        const previewText = getSituationContent(situation);
-
-        card.appendChild(
-            createTextElement(
-                "p",
-                previewText,
-                "situation-preview"
-            )
-        );
+        if (department === "train" && situation.description) {
+            card.appendChild(
+                createTextElement("p", situation.description)
+            );
+        }
 
         const tags = document.createElement("div");
         tags.className = "tags";
@@ -540,8 +708,6 @@ function openSituation(id) {
 
 
     // ОТДЕЛ ОХРАНЫ ТРУДА
-    // Выводим единый основной текст без разделения на действия,
-    // признаки и ограничения.
 
     if (isLabor) {
         const mainContent = getSituationContent(situation);
@@ -558,7 +724,6 @@ function openSituation(id) {
 
 
     // ОТДЕЛ УПРАВЛЕНИЯ ПОЕЗДОМ
-    // Сохраняем прежнюю структуру отображения.
 
     else {
         addSectionTitle(details, "Описание");
@@ -619,6 +784,11 @@ function openSituation(id) {
     }
 
 
+    // ПРИКРЕПЛЁННЫЕ ФАЙЛЫ
+
+    renderSituationAttachments(details, situation);
+
+
     // НОРМАТИВНОЕ ОСНОВАНИЕ
 
     addSectionTitle(details, "Нормативное основание");
@@ -658,10 +828,7 @@ function openSituation(id) {
 
     situationsContainer.appendChild(details);
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
+    // Не прокручиваем страницу при открытии карточки.
 }
 
 
@@ -890,7 +1057,7 @@ stockButtons.forEach(button => {
 menuItems.forEach(item => {
     item.addEventListener("click", () => {
 
-        // Переключение отдела
+        // ПЕРЕКЛЮЧЕНИЕ ОТДЕЛА
 
         if (
             item.dataset.department &&
@@ -901,7 +1068,7 @@ menuItems.forEach(item => {
             return;
         }
 
-        // Выбор категории
+        // ВЫБОР КАТЕГОРИИ
 
         if (item.dataset.category) {
             selectedDepartment =
@@ -916,7 +1083,7 @@ menuItems.forEach(item => {
             return;
         }
 
-        // Выбор типа материала
+        // ВЫБОР ТИПА МАТЕРИАЛА
 
         if (item.dataset.type) {
             selectedType = item.dataset.type;
@@ -928,7 +1095,7 @@ menuItems.forEach(item => {
             return;
         }
 
-        // Информационные страницы
+        // ИНФОРМАЦИОННЫЕ СТРАНИЦЫ
 
         if (item.dataset.info) {
             openInfoPage(item.dataset.info);
