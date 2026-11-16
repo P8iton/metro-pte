@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta name="theme-color" content="#101114">
-    <meta name="description" content="METRO PTE — справочник машиниста метрополитена">
+    <meta name="theme-color" content="#101318">
+    <meta name="description" content="METRO PTE — справочная система машиниста метрополитена">
 
     <title>METRO PTE — Справочник машиниста</title>
 
@@ -24,7 +24,7 @@
 
             <div>
                 <div class="header-title">METRO PTE</div>
-                <div class="header-subtitle">Справочник машиниста</div>
+                <div class="header-subtitle">Справочная система машиниста</div>
             </div>
         </div>
 
@@ -33,6 +33,7 @@
             id="menuToggle"
             aria-label="Открыть меню"
             aria-expanded="false"
+            type="button"
         >
             ☰
         </button>
@@ -58,6 +59,7 @@
                 class="menu-close"
                 id="menuClose"
                 aria-label="Закрыть меню"
+                type="button"
             >
                 ×
             </button>
@@ -67,35 +69,57 @@
 
         <div class="menu-content">
 
+            <!-- ПЕРЕКЛЮЧЕНИЕ ОТДЕЛОВ -->
             <div class="menu-section-title">
-                КАТЕГОРИИ
+                ОТДЕЛЫ
             </div>
 
-            <button class="menu-item" data-category="Подвижной состав">
+            <button class="menu-item active" data-department="all" type="button">
+                🔎 Все отделы
+            </button>
+
+            <button class="menu-item" data-department="train" type="button">
+                🚇 Управление поездом
+            </button>
+
+            <button class="menu-item" data-department="labor" type="button">
+                🦺 Охрана труда
+            </button>
+
+
+            <div class="menu-divider"></div>
+
+
+            <!-- КАТЕГОРИИ УПРАВЛЕНИЯ ПОЕЗДОМ -->
+            <div class="menu-section-title">
+                УПРАВЛЕНИЕ ПОЕЗДОМ
+            </div>
+
+            <button class="menu-item" data-category="Подвижной состав" data-department="train" type="button">
                 🚇 Подвижной состав
             </button>
 
-            <button class="menu-item" data-category="Электрооборудование">
+            <button class="menu-item" data-category="Электрооборудование" data-department="train" type="button">
                 ⚡ Электрооборудование
             </button>
 
-            <button class="menu-item" data-category="Тормоза">
+            <button class="menu-item" data-category="Тормоза" data-department="train" type="button">
                 🛑 Тормоза
             </button>
 
-            <button class="menu-item" data-category="Аварийные ситуации">
+            <button class="menu-item" data-category="Аварийные ситуации" data-department="train" type="button">
                 🚨 Аварийные ситуации
             </button>
 
-            <button class="menu-item" data-category="Связь">
+            <button class="menu-item" data-category="Связь" data-department="train" type="button">
                 📡 Связь
             </button>
 
-            <button class="menu-item" data-category="Движение">
+            <button class="menu-item" data-category="Движение" data-department="train" type="button">
                 🚦 Движение
             </button>
 
-            <button class="menu-item" data-category="Управление">
+            <button class="menu-item" data-category="Управление" data-department="train" type="button">
                 🎮 Управление
             </button>
 
@@ -103,31 +127,65 @@
             <div class="menu-divider"></div>
 
 
+            <!-- КАТЕГОРИИ ОХРАНЫ ТРУДА -->
+            <div class="menu-section-title">
+                ОХРАНА ТРУДА
+            </div>
+
+            <button class="menu-item" data-category="Общие требования" data-department="labor" type="button">
+                📋 Общие требования
+            </button>
+
+            <button class="menu-item" data-category="Электробезопасность" data-department="labor" type="button">
+                ⚡ Электробезопасность
+            </button>
+
+            <button class="menu-item" data-category="Пожарная безопасность" data-department="labor" type="button">
+                🔥 Пожарная безопасность
+            </button>
+
+            <button class="menu-item" data-category="Средства индивидуальной защиты" data-department="labor" type="button">
+                🦺 Средства индивидуальной защиты
+            </button>
+
+            <button class="menu-item" data-category="Работа на путях" data-department="labor" type="button">
+                🚧 Работа на путях
+            </button>
+
+            <button class="menu-item" data-category="Рабочее место" data-department="labor" type="button">
+                🏢 Рабочее место
+            </button>
+
+
+            <div class="menu-divider"></div>
+
+
+            <!-- ТИП МАТЕРИАЛА -->
             <div class="menu-section-title">
                 ТИП МАТЕРИАЛА
             </div>
 
-            <button class="menu-item" data-type="all">
+            <button class="menu-item" data-type="all" type="button">
                 📚 Все материалы
             </button>
 
-            <button class="menu-item" data-type="malfunction">
+            <button class="menu-item" data-type="malfunction" type="button">
                 ⚙️ Неисправности
             </button>
 
-            <button class="menu-item" data-type="emergency">
+            <button class="menu-item" data-type="emergency" type="button">
                 🚨 Аварийные ситуации
             </button>
 
-            <button class="menu-item" data-type="procedure">
+            <button class="menu-item" data-type="procedure" type="button">
                 📋 Порядок действий
             </button>
 
-            <button class="menu-item" data-type="signal">
+            <button class="menu-item" data-type="signal" type="button">
                 🚦 Сигнализация
             </button>
 
-            <button class="menu-item" data-type="rule">
+            <button class="menu-item" data-type="rule" type="button">
                 📖 Нормативные требования
             </button>
 
@@ -135,19 +193,20 @@
             <div class="menu-divider"></div>
 
 
+            <!-- ИНФОРМАЦИЯ -->
             <div class="menu-section-title">
                 ИНФОРМАЦИЯ
             </div>
 
-            <button class="menu-item" data-info="about">
+            <button class="menu-item" data-info="about" type="button">
                 ℹ️ О справочнике
             </button>
 
-            <button class="menu-item" data-info="disclaimer">
+            <button class="menu-item" data-info="disclaimer" type="button">
                 ⚠️ Важная информация
             </button>
 
-            <button class="menu-item" data-info="credits">
+            <button class="menu-item" data-info="credits" type="button">
                 👤 Создатель
             </button>
 
@@ -174,7 +233,7 @@
             </p>
 
 
-            <!-- ПОИСК -->
+            <!-- ОБЩИЙ ПОИСК -->
             <div class="search-box">
 
                 <span class="search-icon">⌕</span>
@@ -182,7 +241,7 @@
                 <input
                     type="text"
                     id="search"
-                    placeholder="Поиск по справочнику..."
+                    placeholder="Поиск по обоим отделам..."
                     autocomplete="off"
                 >
 
@@ -198,8 +257,72 @@
             </div>
 
 
+            <!-- ВЫБОР ОТДЕЛА -->
+            <div class="department-section">
+
+                <div class="department-section-title">
+                    ВЫБЕРИ ОТДЕЛ
+                </div>
+
+                <div class="department-cards">
+
+                    <button
+                        class="department-card train-department"
+                        data-department-card="train"
+                        type="button"
+                    >
+                        <span class="department-icon">🚇</span>
+
+                        <span class="department-card-title">
+                            Управление поездом
+                        </span>
+
+                        <span class="department-card-description">
+                            ПТЭ, подвижной состав, тормоза, движение и неисправности
+                        </span>
+
+                        <span class="department-card-action">
+                            Перейти к материалам →
+                        </span>
+                    </button>
+
+
+                    <button
+                        class="department-card labor-department"
+                        data-department-card="labor"
+                        type="button"
+                    >
+                        <span class="department-icon">🦺</span>
+
+                        <span class="department-card-title">
+                            Охрана труда
+                        </span>
+
+                        <span class="department-card-description">
+                            Безопасность, СИЗ, электробезопасность и рабочее место
+                        </span>
+
+                        <span class="department-card-action">
+                            Перейти к материалам →
+                        </span>
+                    </button>
+
+                </div>
+
+
+                <button
+                    class="all-departments-button active"
+                    id="allDepartmentsButton"
+                    type="button"
+                >
+                    🔎 Искать по обоим отделам
+                </button>
+
+            </div>
+
+
             <!-- ВЫБОР СОСТАВА -->
-            <div class="stock-selector">
+            <div class="stock-selector" id="stockSelector">
 
                 <div class="stock-selector-title">
                     ВЫБЕРИ ПОДВИЖНОЙ СОСТАВ
@@ -257,7 +380,7 @@
                     </h2>
 
                     <p id="resultsSubtitle">
-                        Актуальная информация из справочника
+                        Поиск по всем отделам справочника
                     </p>
                 </div>
 
